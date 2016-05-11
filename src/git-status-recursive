@@ -1,0 +1,38 @@
+#!/usr/bin/env python3
+
+import os
+import sys
+from subprocess import check_output, CalledProcessError, STDOUT
+from glob import glob
+
+def shell(cmd):
+    return check_output(cmd, shell=True, stderr=STDOUT).decode('utf-8').strip()
+
+# Recursively get absolute paths to repositories
+repos = [os.path.abspath(r.rstrip('.git'))
+        for r in glob('**/.git', recursive=True)]
+
+common_prefix = os.path.commonprefix(repos)
+
+original_cwd = os.getcwd()
+
+try:
+    for repo in repos:
+        os.chdir(repo)
+
+        # Repo path
+        print('.' + repo.replace(common_prefix, ''))
+
+        # Branch/HEAD info
+        print('  ' + shell('git status | head -1'))
+
+        # Current commit
+        try:
+            print('  ' + shell('git log -n 1 --abbrev-commit --oneline'))
+        except CalledProcessError:
+            print('  (no commits)')
+
+        print()
+
+finally:
+    os.chdir(original_cwd)
