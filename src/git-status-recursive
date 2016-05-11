@@ -21,7 +21,7 @@ try:
         os.chdir(repo)
 
         # Repo path
-        print('.' + repo.replace(common_prefix, ''))
+        print('./' + repo.replace(common_prefix, '').lstrip('/'))
 
         # Branch/HEAD info
         print('  ' + shell('git status | head -1'))
